@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyTorch](https://img.shields.io/badge/Framework-PyTorch-EE4C2C.svg)](https://pytorch.org/)
-[![Research Grade](https://img.shields.io/badge/Quality-Thesis--Level-blue.svg)]()
+
 
 A comprehensive, research-oriented framework for high-performance semantic segmentation in driving environments. This project implements and compares several state-of-the-art architectures, specifically optimized for the balance between accuracy and real-time inference efficiency.
 
