@@ -10,7 +10,9 @@ from src.models.unet import UNet
 from src.models.enet import ENet
 from src.models.bisenet import BiSeNet
 from src.utils.losses import CombinedLoss
+from src.utils.losses.hybrid_loss import HybridSegmentationLoss
 from src.training.trainer import Trainer
+
 
 def initialize_model(config):
     """
@@ -31,6 +33,30 @@ def initialize_model(config):
         return BiSeNet(n_channels=num_channels, n_classes=num_classes)
     else:
         raise ValueError(f"Unknown model name: {model_name}")
+
+
+def initialize_loss(config):
+    """Initializes the loss function for controlled ablation experiments."""
+    loss_type = config.training.loss_type.lower()
+
+    if loss_type in {"cross_entropy", "ce"}:
+        print("Using CrossEntropyLoss...")
+        return nn.CrossEntropyLoss()
+
+    if loss_type in {"combined", "ce_dice", "dice"}:
+        print("Using CombinedLoss: Cross Entropy + Dice...")
+        return CombinedLoss(dice_weight=config.training.weight_dice)
+
+    if loss_type in {"hybrid", "ce_dice_boundary"}:
+        print("Using HybridSegmentationLoss: Cross Entropy + Dice + Boundary...")
+        return HybridSegmentationLoss(
+            alpha=1.0,
+            beta=config.training.weight_dice,
+            gamma=0.1,
+        )
+
+    raise ValueError(f"Unknown loss type: {config.training.loss_type}")
+
 
 def main():
     # 1. Configuration
@@ -54,8 +80,7 @@ def main():
     model = initialize_model(config)
 
     # 4. Loss and Optimizer
-    # Using CombinedLoss (CE + Dice) as it's better for segmentation
-    criterion = CombinedLoss(dice_weight=config.training.weight_dice)
+    criterion = initialize_loss(config)
 
     if config.training.optimizer_type.lower() == "adam":
         optimizer = optim.Adam(model.parameters(), lr=config.training.lr)
@@ -85,6 +110,7 @@ def main():
     with open(history_path, 'w') as f:
         yaml.dump(history, f)
     print(f"Training history saved to {history_path}")
+
 
 if __name__ == "__main__":
     main()
