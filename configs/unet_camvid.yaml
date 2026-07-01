@@ -1,0 +1,29 @@
+dataset:
+  data_dir: data/camvid
+  image_size: [512, 512]
+  num_classes: 32
+  train_split: 0.8
+  augmentations: true
+
+model:
+  model_name: unet
+  num_classes: 32
+  input_channels: 3
+  pretrained: false
+
+training:
+  batch_size: 8
+  lr: 0.0001
+  epochs: 50
+  num_workers: 4
+  seed: 42
+  checkpoint_dir: results/checkpoints/unet_camvid
+  log_dir: results/logs/unet_camvid
+  save_best_only: true
+  optimizer_type: Adam
+  loss_type: cross_entropy
+  weight_dice: 0.5
+
+experiment:
+  experiment_name: unet_camvid_baseline
+  output_dir: results/experiments/unet_camvid_baseline
