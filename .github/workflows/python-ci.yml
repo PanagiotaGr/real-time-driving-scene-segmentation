@@ -38,3 +38,6 @@ jobs:
           print('Core dependencies imported successfully')
           print('Torch version:', torch.__version__)
           PY
+
+      - name: Run unit tests
+        run: pytest -q
