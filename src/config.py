@@ -1,6 +1,8 @@
 import os
-from dataclasses import dataclass, field
-from typing import Tuple
+from dataclasses import dataclass, field, fields, is_dataclass
+from typing import Any, Tuple
+
+import yaml
 
 
 @dataclass
@@ -57,5 +59,36 @@ class Config:
             self.training.device = "cpu"
 
 
-def get_config() -> Config:
-    return Config()
+def _update_dataclass(instance: Any, values: dict[str, Any]) -> None:
+    if not is_dataclass(instance):
+        raise TypeError(f"Expected dataclass instance, got {type(instance)!r}")
+
+    valid_fields = {field.name for field in fields(instance)}
+    for key, value in values.items():
+        if key not in valid_fields:
+            raise ValueError(f"Unknown configuration field: {key}")
+        if key == "image_size" and isinstance(value, list):
+            value = tuple(value)
+        setattr(instance, key, value)
+
+
+def load_config(path: str | None = None) -> Config:
+    config = Config()
+    if path is None:
+        return config
+
+    with open(path, "r", encoding="utf-8") as f:
+        raw = yaml.safe_load(f) or {}
+
+    for section_name, section_values in raw.items():
+        if not hasattr(config, section_name):
+            raise ValueError(f"Unknown configuration section: {section_name}")
+        section = getattr(config, section_name)
+        if section_values is not None:
+            _update_dataclass(section, section_values)
+
+    return config
+
+
+def get_config(path: str | None = None) -> Config:
+    return load_config(path)
