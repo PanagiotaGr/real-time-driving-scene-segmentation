@@ -1,16 +1,15 @@
 import argparse
-import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import yaml
 from src.config import get_config
 from src.datasets import get_camvid_dataloaders
 from src.models.unet import UNet
 from src.models.enet import ENet
+from src.training.trainer import Trainer
+from src.utils.experiment_tracking import export_experiment_artifacts
 from src.utils.losses import CombinedLoss
 from src.utils.hybrid_loss import HybridSegmentationLoss
-from src.training.trainer import Trainer
 
 
 def parse_args():
@@ -116,12 +115,8 @@ def main():
     )
 
     history = trainer.fit()
-
-    os.makedirs(config.experiment.output_dir, exist_ok=True)
-    history_path = os.path.join(config.experiment.output_dir, f"{config.experiment.experiment_name}_history.yaml")
-    with open(history_path, 'w') as f:
-        yaml.dump(history, f)
-    print(f"Training history saved to {history_path}")
+    output_dir = export_experiment_artifacts(config, history)
+    print(f"Experiment artifacts saved to {output_dir}")
 
 
 if __name__ == "__main__":
