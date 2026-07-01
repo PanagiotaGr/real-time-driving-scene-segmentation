@@ -1,7 +1,7 @@
 import torch
 
 from src.utils.losses import CombinedLoss, DiceLoss
-from src.utils.losses.hybrid_loss import HybridSegmentationLoss
+from src.utils.hybrid_loss import HybridSegmentationLoss
 
 
 def test_dice_loss_returns_scalar():
