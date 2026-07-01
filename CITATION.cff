@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using the metadata below."
+title: "Real-Time Driving Scene Semantic Segmentation"
+authors:
+  - family-names: "Gr"
+    given-names: "Panagiota"
+repository-code: "https://github.com/PanagiotaGr/real-time-driving-scene-segmentation"
+type: software
+license: MIT
+abstract: "A research-oriented PyTorch framework for real-time semantic segmentation of driving scenes, focusing on reproducibility, accuracy-speed benchmarking, and lightweight model analysis."
+keywords:
+  - semantic segmentation
+  - computer vision
+  - autonomous driving
+  - PyTorch
+  - real-time inference
+  - CamVid
+version: 0.1.0
+date-released: 2026-07-01
