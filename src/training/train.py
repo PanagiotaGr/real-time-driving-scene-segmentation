@@ -1,3 +1,4 @@
+import argparse
 import os
 import torch
 import torch.nn as nn
@@ -10,6 +11,17 @@ from src.models.enet import ENet
 from src.utils.losses import CombinedLoss
 from src.utils.hybrid_loss import HybridSegmentationLoss
 from src.training.trainer import Trainer
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train a semantic segmentation model.")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Optional path to a YAML experiment configuration file.",
+    )
+    return parser.parse_args()
 
 
 def initialize_model(config):
@@ -66,7 +78,8 @@ def initialize_loss(config):
 
 
 def main():
-    config = get_config()
+    args = parse_args()
+    config = get_config(args.config)
 
     torch.manual_seed(config.training.seed)
     if torch.cuda.is_available():
