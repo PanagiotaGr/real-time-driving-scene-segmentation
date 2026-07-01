@@ -8,7 +8,7 @@ from src.datasets import get_camvid_dataloaders
 from src.models.unet import UNet
 from src.models.enet import ENet
 from src.utils.losses import CombinedLoss
-from src.utils.losses.hybrid_loss import HybridSegmentationLoss
+from src.utils.hybrid_loss import HybridSegmentationLoss
 from src.training.trainer import Trainer
 
 
@@ -66,17 +66,14 @@ def initialize_loss(config):
 
 
 def main():
-    # 1. Configuration
     config = get_config()
 
-    # Reproducibility
     torch.manual_seed(config.training.seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(config.training.seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-    # 2. Data
     print(f"Loading datasets from {config.dataset.data_dir}...")
     train_loader, val_loader = get_camvid_dataloaders(
         config.dataset,
@@ -84,10 +81,7 @@ def main():
         num_workers=config.training.num_workers
     )
 
-    # 3. Model
     model = initialize_model(config)
-
-    # 4. Loss and Optimizer
     criterion = initialize_loss(config)
 
     if config.training.optimizer_type.lower() == "adam":
@@ -97,7 +91,6 @@ def main():
     else:
         raise ValueError(f"Unknown optimizer: {config.training.optimizer_type}")
 
-    # 5. Trainer
     trainer = Trainer(
         model=model,
         train_loader=train_loader,
@@ -109,10 +102,8 @@ def main():
         num_classes=config.dataset.num_classes
     )
 
-    # 6. Execution
     history = trainer.fit()
 
-    # 7. Save History
     os.makedirs(config.experiment.output_dir, exist_ok=True)
     history_path = os.path.join(config.experiment.output_dir, f"{config.experiment.experiment_name}_history.yaml")
     with open(history_path, 'w') as f:
