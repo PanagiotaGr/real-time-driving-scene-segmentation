@@ -1,0 +1,12 @@
+services:
+  segmentation:
+    build: .
+    container_name: driving-scene-segmentation
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    environment:
+      - PYTHONPATH=/workspace
+    command: python -m compileall src
+    stdin_open: true
+    tty: true
