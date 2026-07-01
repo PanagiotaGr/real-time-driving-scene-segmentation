@@ -3,12 +3,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
-import matplotlib.pyplot as plt
 from src.config import get_config
 from src.datasets import get_camvid_dataloaders
 from src.models.unet import UNet
 from src.models.enet import ENet
-from src.models.bisenet import BiSeNet
 from src.utils.losses import CombinedLoss
 from src.utils.losses.hybrid_loss import HybridSegmentationLoss
 from src.training.trainer import Trainer
@@ -25,14 +23,23 @@ def initialize_model(config):
     if model_name == "unet":
         print("Initializing U-Net...")
         return UNet(n_channels=num_channels, n_classes=num_classes)
-    elif model_name == "enet":
+
+    if model_name == "enet":
         print("Initializing ENet...")
         return ENet(n_channels=num_channels, n_classes=num_classes)
-    elif model_name == "bisenet":
+
+    if model_name == "bisenet":
+        try:
+            from src.models.bisenet import BiSeNet
+        except ImportError as exc:
+            raise ImportError(
+                "BiSeNet was selected, but src/models/bisenet.py is not available yet. "
+                "Use model_name='unet' or model_name='enet', or add a BiSeNet implementation."
+            ) from exc
         print("Initializing BiSeNet...")
         return BiSeNet(n_channels=num_channels, n_classes=num_classes)
-    else:
-        raise ValueError(f"Unknown model name: {model_name}")
+
+    raise ValueError(f"Unknown model name: {model_name}")
 
 
 def initialize_loss(config):
@@ -64,7 +71,8 @@ def main():
 
     # Reproducibility
     torch.manual_seed(config.training.seed)
-    torch.cuda.manual_seed_all(config.training.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(config.training.seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
